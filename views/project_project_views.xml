@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Estende la form view di project.project aggiungendo il flag
+        is_dev_project nella pagina del notebook denominata "Settings"
+        (in italiano "Impostazioni"). In Odoo 17 la pagina ha
+        name="settings" nello standard del modulo project.
+    -->
+    <record id="view_project_form_inherit_dev" model="ir.ui.view">
+        <field name="name">project.project.form.inherit.dev</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//page[@name='settings']" position="inside">
+                <group string="Development" name="dev_project_group">
+                    <field name="is_dev_project"/>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

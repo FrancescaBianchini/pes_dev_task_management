@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Azione dedicata ai task dei soli progetti di sviluppo.
+        Propaga il flag is_dev_project:
+        - via DOMAIN: mostra solo task con is_dev_project = True
+        - via CONTEXT: ogni nuovo task creato da qui eredita
+          default_is_dev_project=True (utile per filtri/colonne reattive)
+        E' su questa azione che e' agganciato il preferito "Roadmap".
+    -->
+    <record id="action_dev_project_tasks" model="ir.actions.act_window">
+        <field name="name">Dev Tasks</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="domain">[('is_dev_project', '=', True)]</field>
+        <field name="context">{
+            'default_is_dev_project': True,
+            'search_default_filter_is_not_epic': 0,
+        }</field>
+        <field name="search_view_id" ref="project.view_task_search_form"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Nessun task di sviluppo trovato
+            </p><p>
+                Questa vista mostra esclusivamente i task appartenenti a
+                progetti con il flag "Is Dev Project" attivo.
+                Usa il preferito condiviso "Roadmap" per l'ordinamento
+                Release / Sprint / US Code / Date / Value.
+            </p>
+        </field>
+    </record>
+
+    <!--
+        Menu sotto l'app Progetto, in cima al menu principale.
+        Cosi' gli utenti hanno un accesso diretto alla roadmap di sviluppo.
+    -->
+    <menuitem id="menu_dev_project_tasks_root"
+              name="Dev Tasks"
+              parent="project.menu_main_pm"
+              action="action_dev_project_tasks"
+              sequence="15"/>
+
+</odoo>

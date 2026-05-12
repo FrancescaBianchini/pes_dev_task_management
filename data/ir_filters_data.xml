@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+
+    <!--
+        ir.filters "Roadmap" - preferito CONDIVISO (user_id=False)
+        agganciato all'azione dedicata "Dev Tasks". Ordina i task per
+        Release, Sprint, date_deadline, US Code (tutti ascendenti).
+        Il dominio is_dev_project = True e' gia' applicato dall'azione,
+        qui lo lasciamo a [] per non duplicarlo.
+
+        is_default = True -> il filtro Roadmap viene preselezionato
+        automaticamente all'apertura dell'azione Dev Tasks, applicando
+        subito l'ordinamento richiesto. L'utente puo' comunque modificare
+        l'ordinamento cliccando le intestazioni colonna nella tree.
+    -->
+    <record id="filter_project_task_roadmap" model="ir.filters">
+        <field name="name">Roadmap</field>
+        <field name="model_id">project.task</field>
+        <field name="user_id" eval="False"/>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="sort">["release asc", "sprint asc", "date_deadline asc", "us_code asc"]</field>
+        <field name="action_id" ref="action_dev_project_tasks"/>
+        <field name="is_default" eval="True"/>
+    </record>
+
+</odoo>

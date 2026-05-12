@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================ -->
+    <!-- FORM VIEW: project.task                                          -->
+    <!-- Aggiunge i campi di sviluppo nel form e i due tab finali         -->
+    <!-- "Acceptance Criteria" e "Note", tutti visibili solo quando       -->
+    <!-- is_dev_project = TRUE.                                           -->
+    <!-- ================================================================ -->
+    <record id="view_task_form2_inherit_dev" model="ir.ui.view">
+        <field name="name">project.task.form.inherit.dev</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="arch" type="xml">
+
+            <!-- campo invisibile per pilotare la visibilita' degli altri -->
+            <xpath expr="//field[@name='project_id']" position="after">
+                <field name="is_dev_project" invisible="1"/>
+            </xpath>
+
+            <!--
+                Inserisco un gruppo con i campi di sviluppo subito prima
+                del notebook. Il gruppo intero appare solo se il progetto
+                ha is_dev_project = True.
+            -->
+            <xpath expr="//notebook" position="before">
+                <group name="dev_fields_group"
+                       string="Development"
+                       invisible="not is_dev_project">
+                    <group name="dev_fields_left">
+                        <field name="is_epic"/>
+                        <field name="epic_id"
+                               options="{'no_create': True, 'no_create_edit': True}"
+                               invisible="is_epic"/>
+                        <field name="release"/>
+                        <field name="sprint"/>
+                    </group>
+                    <group name="dev_fields_right">
+                        <field name="us_code"/>
+                        <field name="estimate"/>
+                        <field name="value"/>
+                        <field name="application_ids"
+                               widget="many2many_tags"
+                               options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True, 'color_field': 'color'}"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <!-- Aggiungo i due nuovi tab al notebook esistente -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Acceptance Criteria"
+                      name="acceptance_criteria_page"
+                      invisible="not is_dev_project">
+                    <field name="acceptance_criteria"
+                           nolabel="1"
+                           placeholder="Inserire i criteri di accettazione..."/>
+                </page>
+                <page string="Note"
+                      name="dev_notes_page"
+                      invisible="not is_dev_project">
+                    <field name="dev_notes"
+                           nolabel="1"
+                           placeholder="Note interne sul task..."/>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+
+    <!-- ================================================================ -->
+    <!-- TREE / LIST VIEW: project.task                                   -->
+    <!-- - Abilita la modifica massiva (multi_edit) MA senza inline       -->
+    <!--   editable, cosi':                                               -->
+    <!--     * click su riga senza selezione  -> apre il form del task    -->
+    <!--     * con righe selezionate (checkbox), click su una cella ->    -->
+    <!--       modifica inline propagata a tutte le righe selezionate     -->
+    <!-- - Aggiunge le colonne Epic, Release, Sprint, US Code,            -->
+    <!--   date_deadline (date range start/end standard Odoo),            -->
+    <!--   Value, Estimate                                                -->
+    <!-- - Nasconde di default le colonne cliente e prossima attivita'    -->
+    <!-- ================================================================ -->
+    <record id="view_task_tree2_inherit_dev" model="ir.ui.view">
+        <field name="name">project.task.tree.inherit.dev</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2"/>
+        <field name="arch" type="xml">
+
+            <!--
+                Abilito SOLO multi_edit, senza editable.
+                In v17 il renderer della list view gestisce automaticamente:
+                - nessuna selezione: click apre la form;
+                - una o piu' righe selezionate via checkbox: click su una
+                  cella di una riga selezionata avvia la modifica inline e
+                  il salvataggio propaga a tutte le righe selezionate.
+            -->
+            <xpath expr="//tree" position="attributes">
+                <attribute name="multi_edit">1</attribute>
+                <attribute name="editable"/>
+            </xpath>
+
+            <!--
+                Aggiungo il related is_dev_project come campo invisibile
+                cosi' e' disponibile come "parent" / contesto per ulteriori
+                eredita' su questa stessa vista.
+            -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_dev_project" column_invisible="1"/>
+            </xpath>
+
+            <!-- Nascondo le colonne richieste impostandole optional=hide -->
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='activity_ids']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+
+            <!--
+                Inserisco le nuove colonne. Le metto come optional="show"
+                cosi' sono visibili di default ma il singolo utente puo'
+                escluderle dal selettore di colonne.
+                NB: date_deadline esiste gia' nella tree standard di Odoo
+                (con widget remaining_days e optional=hide), quindi la
+                gestisco con position="attributes" piu' sotto, non la
+                aggiungo qui.
+            -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="epic_id" string="Epic" optional="show"/>
+                <field name="release" optional="show"/>
+                <field name="sprint" optional="show"/>
+                <field name="us_code" optional="show"/>
+                <field name="value" optional="show"/>
+                <field name="estimate" optional="show"/>
+            </xpath>
+
+            <!--
+                Rendo date_deadline visibile di default (sia su action
+                "Dev Tasks" sia sulla list standard task) e rimuovo il
+                widget remaining_days cosi' viene visualizzata la data
+                completa, piu' utile in roadmap.
+            -->
+            <xpath expr="//field[@name='date_deadline']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="widget"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!--
+        NOTA: la gestione del campo Studio x_studio_opportunit_collegata
+        e' stata rimossa dal modulo. La colonna potra' essere nascosta
+        manualmente dall'utente tramite il selettore di colonne nella
+        list view (icona in alto a destra della tree). Per renderla
+        nascosta di default in modo persistente, la modifica va fatta
+        direttamente nella view di Studio che la aggiunge.
+    -->
+
+    <!-- ================================================================ -->
+    <!-- KANBAN VIEW: project.task                                        -->
+    <!-- Mostra Release, Sprint, US Code nella card se is_dev_project     -->
+    <!-- ================================================================ -->
+    <record id="view_task_kanban_inherit_dev" model="ir.ui.view">
+        <field name="name">project.task.kanban.inherit.dev</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_kanban"/>
+        <field name="arch" type="xml">
+
+            <!-- Carico i campi necessari nel kanban -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="is_dev_project"/>
+                <field name="release"/>
+                <field name="sprint"/>
+                <field name="us_code"/>
+            </xpath>
+
+            <!--
+                Inserisco le info di sviluppo nella card. Le posiziono dopo
+                la sezione contenente il nome / titolo del task.
+            -->
+            <xpath expr="//div[hasclass('oe_kanban_content')]" position="inside">
+                <div class="o_kanban_dev_info mt-1"
+                     t-if="record.is_dev_project.raw_value">
+                    <div t-if="record.us_code.raw_value"
+                         class="badge text-bg-info me-1">
+                        <t t-esc="record.us_code.value"/>
+                    </div>
+                    <span t-if="record.release.raw_value"
+                          class="me-2">
+                        <i class="fa fa-tag" title="Release"/>
+                        R<t t-esc="record.release.value"/>
+                    </span>
+                    <span t-if="record.sprint.raw_value">
+                        <i class="fa fa-bolt" title="Sprint"/>
+                        S<t t-esc="record.sprint.value"/>
+                    </span>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
+
+    <!-- ================================================================ -->
+    <!-- SEARCH VIEW: project.task                                        -->
+    <!-- - Filtri: Is Epic / Is not Epic / With(out) Release /            -->
+    <!--           With(out) Sprint                                       -->
+    <!-- - Campi cercabili: release, sprint, us code, value, estimate,    -->
+    <!--   application                                                    -->
+    <!-- - Group by: value, Release, Sprint, US Code, Application         -->
+    <!-- ================================================================ -->
+    <record id="view_task_search_form_inherit_dev" model="ir.ui.view">
+        <field name="name">project.task.search.inherit.dev</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_search_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Campi cercabili dalla casella di ricerca -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="release"/>
+                <field name="sprint"/>
+                <field name="us_code" string="US Code"/>
+                <field name="value"/>
+                <field name="estimate"/>
+                <field name="application_ids" string="Application"/>
+            </xpath>
+
+            <!-- Filtri rapidi -->
+            <xpath expr="//filter[@name='my_tasks']" position="before">
+                <separator/>
+                <filter name="filter_is_epic"
+                        string="Is Epic"
+                        domain="[('is_epic', '=', True)]"/>
+                <filter name="filter_is_not_epic"
+                        string="Is not Epic"
+                        domain="[('is_epic', '=', False)]"/>
+                <separator/>
+                <filter name="filter_with_release"
+                        string="With Release"
+                        domain="[('release', '!=', 0), ('release', '!=', False)]"/>
+                <filter name="filter_without_release"
+                        string="Without Release"
+                        domain="['|', ('release', '=', 0), ('release', '=', False)]"/>
+                <separator/>
+                <filter name="filter_with_sprint"
+                        string="With Sprint"
+                        domain="[('sprint', '!=', 0), ('sprint', '!=', False)]"/>
+                <filter name="filter_without_sprint"
+                        string="Without Sprint"
+                        domain="['|', ('sprint', '=', 0), ('sprint', '=', False)]"/>
+                <separator/>
+            </xpath>
+
+            <!-- Group by aggiuntivi -->
+            <xpath expr="//group" position="inside">
+                <filter name="group_by_value"
+                        string="Value"
+                        context="{'group_by': 'value'}"/>
+                <filter name="group_by_release"
+                        string="Release"
+                        context="{'group_by': 'release'}"/>
+                <filter name="group_by_sprint"
+                        string="Sprint"
+                        context="{'group_by': 'sprint'}"/>
+                <filter name="group_by_us_code"
+                        string="US Code"
+                        context="{'group_by': 'us_code'}"/>
+                <filter name="group_by_application"
+                        string="Application"
+                        context="{'group_by': 'application_ids'}"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

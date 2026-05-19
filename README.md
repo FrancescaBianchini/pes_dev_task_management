@@ -12,7 +12,7 @@ Modulo Odoo 17 che estende la gestione progetti standard per supportare workflow
 
 ## Funzionalità
 
-### Flag di progetto
+### Flag di progetto 
 
 Nelle impostazioni di ogni progetto compare il campo **Is Dev Project**. Finché non è abilitato, nessun campo di sviluppo è visibile sui task — i progetti non-dev restano invariati.
 

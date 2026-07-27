@@ -18,7 +18,6 @@ class ProjectTask(models.Model):
     epic_id = fields.Many2one(
         comodel_name='project.task.epic',
         string='Epic',
-        domain="[('project_id', '=', project_id)]",
         help="Epic di appartenenza del task.",
     )
 
@@ -65,10 +64,3 @@ class ProjectTask(models.Model):
             if rec.is_epic:
                 rec.epic_id = False
 
-    @api.onchange('project_id')
-    def _onchange_project_id_clear_epic(self):
-        # Se cambia il progetto, l'epic_id collegato potrebbe non essere
-        # piu' coerente: lo azzeriamo per sicurezza
-        for rec in self:
-            if rec.epic_id and rec.epic_id.project_id != rec.project_id:
-                rec.epic_id = False

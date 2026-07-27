@@ -1,6 +1,6 @@
 {
     'name': 'PES Dev Task Management',
-    'version': '17.0.1.2.0',
+    'version': '17.0.1.2.1',
     'category': 'Project',
     'summary': 'Gestione task di sviluppo: Epic, Release, Sprint, US Code, etc.',
     'description': """

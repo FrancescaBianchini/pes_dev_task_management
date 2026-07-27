@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Intervallo (in secondi) per l'auto-refresh della lista/kanban task
+        nei progetti con is_dev_project = True.
+        Modificabile da: Impostazioni > Tecnico > Parametri > Parametri di sistema
+        Chiave: pes_dev_task_management.task_auto_refresh_interval
+        noupdate="1": il valore non viene sovrascritto durante gli upgrade del modulo.
+    -->
+    <record id="param_task_auto_refresh_interval" model="ir.config_parameter">
+        <field name="key">pes_dev_task_management.task_auto_refresh_interval</field>
+        <field name="value">30</field>
+    </record>
+</odoo>

@@ -1,6 +1,6 @@
 {
     'name': 'PES Dev Task Management',
-    'version': '17.0.1.0.0',
+    'version': '17.0.1.1.0',
     'category': 'Project',
     'summary': 'Gestione task di sviluppo: Epic, Release, Sprint, US Code, etc.',
     'description': """
@@ -21,7 +21,13 @@ Aggiunge campi specifici al modello project.project e project.task:
         'views/project_task_views.xml',
         'views/project_task_action_dev.xml',
         'data/ir_filters_data.xml',
+        'data/ir_config_parameter.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'pes_dev_task_management/static/src/js/task_auto_refresh.js',
+        ],
+    },
     'installable': True,
     'application': False,
     'license': 'LGPL-3',

@@ -17,6 +17,7 @@
         <field name="context">{
             'default_is_dev_project': True,
             'search_default_filter_is_not_epic': 0,
+            'task_auto_refresh': True,
         }</field>
         <field name="search_view_id" ref="project.view_task_search_form"/>
         <field name="help" type="html">

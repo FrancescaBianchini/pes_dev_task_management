@@ -16,11 +16,10 @@ class ProjectTask(models.Model):
     is_epic = fields.Boolean(string='Is Epic')
 
     epic_id = fields.Many2one(
-        comodel_name='project.task',
+        comodel_name='project.task.epic',
         string='Epic',
-        domain="[('is_epic', '=', True), ('project_id', '=', project_id)]",
-        help="Epic di appartenenza del task. Selezionabile solo tra i task del "
-             "medesimo progetto con flag 'Is Epic' attivo.",
+        domain="[('project_id', '=', project_id)]",
+        help="Epic di appartenenza del task.",
     )
 
     # default=0 sui campi Integer per evitare NULL in DB:

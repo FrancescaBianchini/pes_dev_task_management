@@ -1,6 +1,6 @@
 {
     'name': 'PES Dev Task Management',
-    'version': '17.0.1.1.0',
+    'version': '17.0.1.2.0',
     'category': 'Project',
     'summary': 'Gestione task di sviluppo: Epic, Release, Sprint, US Code, etc.',
     'description': """
@@ -18,6 +18,7 @@ Aggiunge campi specifici al modello project.project e project.task:
         'security/ir.model.access.csv',
         'views/project_application_views.xml',
         'views/project_project_views.xml',
+        'views/project_task_epic_views.xml',
         'views/project_task_views.xml',
         'views/project_task_action_dev.xml',
         'data/ir_filters_data.xml',
